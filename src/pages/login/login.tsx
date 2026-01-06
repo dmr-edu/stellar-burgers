@@ -16,10 +16,13 @@ export const Login: FC = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    await dispatch(loginUser({ email, password }));
-    // Редирект на исходный маршрут или на главную
-    const from = location.state?.from?.pathname || '/';
-    navigate(from);
+    const result = await dispatch(loginUser({ email, password }));
+    // Редирект только при успешной авторизации
+    if (loginUser.fulfilled.match(result)) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from);
+    }
+    // При ошибке остаемся на странице логина
   };
 
   if (loginUserRequest) {

@@ -18,16 +18,19 @@ export const Register: FC = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    await dispatch(
+    const result = await dispatch(
       registerUser({
         email,
         name: userName,
         password
       })
     );
-    // Редирект на исходный маршрут или на главную
-    const from = location.state?.from?.pathname || '/';
-    navigate(from);
+    // Редирект только при успешной регистрации
+    if (registerUser.fulfilled.match(result)) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from);
+    }
+    // При ошибке остаемся на странице регистрации
   };
 
   if (registerUserRequest) {
