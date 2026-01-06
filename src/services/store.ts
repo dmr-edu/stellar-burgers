@@ -6,12 +6,19 @@ import {
   useSelector as selectorHook
 } from 'react-redux';
 import { userSlice } from './slices/userSlice';
-import { constructorSlice, ingredientsSlice } from '@slices';
+import {
+  constructorSlice,
+  ingredientsSlice,
+  feedSlice,
+  ordersSlice
+} from '@slices';
 
 const rootReducer = {
   user: userSlice.reducer,
   ingredients: ingredientsSlice.reducer,
-  constructorState: constructorSlice.reducer
+  constructorState: constructorSlice.reducer,
+  feed: feedSlice.reducer,
+  orders: ordersSlice.reducer
 };
 
 const store = configureStore({

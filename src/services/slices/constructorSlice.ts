@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { TConstructorIngredient, TOrder } from '@utils-types';
+import { orderBurgerApi } from '@api';
 
 type TConstructorItem = {
   bun: TConstructorIngredient | null;
@@ -17,6 +18,14 @@ const initialState: TConstructorState = {
   orderRequest: false,
   orderModalData: null
 };
+
+export const createOrder = createAsyncThunk(
+  'constructor/createOrder',
+  async (ingredients: string[]) => {
+    const data = await orderBurgerApi(ingredients);
+    return data.order;
+  }
+);
 
 export const constructorSlice = createSlice({
   name: 'constructorState',
@@ -58,13 +67,42 @@ export const constructorSlice = createSlice({
         state.constructorItems.ingredients.filter(
           (ingredient) => ingredient._id !== action.payload
         );
+    },
+    closeOrderModal: (state) => {
+      state.orderModalData = null;
+    },
+    clearConstructor: (state) => {
+      state.constructorItems = { bun: null, ingredients: [] };
     }
   },
   selectors: {
     constructorSelector: (state) => state
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createOrder.pending, (state) => {
+        state.orderRequest = true;
+        state.orderModalData = null;
+      })
+      .addCase(createOrder.rejected, (state) => {
+        state.orderRequest = false;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.orderRequest = false;
+        state.orderModalData = action.payload;
+        // Очистить конструктор после успешного заказа
+        state.constructorItems = { bun: null, ingredients: [] };
+      });
   }
 });
 
 export const { constructorSelector } = constructorSlice.selectors;
-export const { setBun, addIngredient, removeIngredient, moveUp, moveDown } =
-  constructorSlice.actions;
+export const {
+  setBun,
+  addIngredient,
+  removeIngredient,
+  moveUp,
+  moveDown,
+  closeOrderModal,
+  clearConstructor
+} = constructorSlice.actions;
