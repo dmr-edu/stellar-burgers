@@ -1,14 +1,18 @@
-import { ConstructorPage } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
 
 import { AppHeader } from '@components';
+import { Provider } from 'react-redux';
+import { Outlet } from 'react-router-dom';
+import store from '../../services/store';
 
 const App = () => (
-  <div className={styles.app}>
-    <AppHeader />
-    <ConstructorPage />
-  </div>
+  <Provider store={store}>
+    <div className={styles.app}>
+      <AppHeader />
+      <Outlet />
+    </div>
+  </Provider>
 );
 
 export default App;
