@@ -1,6 +1,14 @@
-import { TRegisterData, loginUserApi, registerUserApi } from '@api';
+import {
+  TRegisterData,
+  loginUserApi,
+  registerUserApi,
+  getUserApi,
+  updateUserApi,
+  logoutApi
+} from '@api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { TUser } from '@utils-types';
+import { setCookie, getCookie, deleteCookie } from '../../utils/cookie';
 
 type TUserState = {
   isAuthChecked: boolean;
@@ -24,13 +32,84 @@ const initialState: TUserState = {
 
 export const loginUser = createAsyncThunk(
   'user/loginUser',
-  async ({ email, password }: Omit<TRegisterData, 'name'>) =>
-    await loginUserApi({ email, password })
+  async (
+    { email, password }: Omit<TRegisterData, 'name'>,
+    { rejectWithValue }
+  ) => {
+    const data = await loginUserApi({ email, password });
+    if (!data?.success) {
+      return rejectWithValue(data);
+    }
+    // Сохранить токены ПРЯМО В THUNK (по материалу)
+    setCookie('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+    // Возвращаем только пользователя
+    return data.user;
+  }
 );
 
 export const registerUser = createAsyncThunk(
   'user/registerUser',
-  async (data: TRegisterData) => await registerUserApi(data)
+  async (data: TRegisterData, { rejectWithValue }) => {
+    const response = await registerUserApi(data);
+    if (!response?.success) {
+      return rejectWithValue(response);
+    }
+    setCookie('accessToken', response.accessToken);
+    localStorage.setItem('refreshToken', response.refreshToken);
+    return response.user;
+  }
+);
+
+export const checkUserAuth = createAsyncThunk(
+  'user/checkUserAuth',
+  async (_, { rejectWithValue }) => {
+    const accessToken = getCookie('accessToken');
+    if (!accessToken) {
+      return rejectWithValue('No token');
+    }
+    try {
+      const data = await getUserApi();
+      if (data?.success) {
+        return data.user;
+      }
+      return rejectWithValue(data);
+    } catch (error) {
+      // Если токен невалидный - очистить токены
+      deleteCookie('accessToken');
+      localStorage.removeItem('refreshToken');
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const updateUser = createAsyncThunk(
+  'user/updateUser',
+  async (userData: Partial<TRegisterData>, { rejectWithValue }) => {
+    const data = await updateUserApi(userData);
+    if (!data?.success) {
+      return rejectWithValue(data);
+    }
+    return data.user;
+  }
+);
+
+export const logoutUser = createAsyncThunk(
+  'user/logoutUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      await logoutApi();
+      // Очистить токены (по материалу)
+      deleteCookie('accessToken');
+      localStorage.removeItem('refreshToken');
+      return true;
+    } catch (error) {
+      // Даже если запрос не удался - очистить токены локально
+      deleteCookie('accessToken');
+      localStorage.removeItem('refreshToken');
+      return rejectWithValue(error);
+    }
+  }
 );
 
 export const userSlice = createSlice({
@@ -52,24 +131,47 @@ export const userSlice = createSlice({
         state.isAuthChecked = true;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.data = action.payload.user;
+        // action.payload теперь это TUser, а не весь объект ответа
+        state.data = action.payload;
         state.loginUserRequest = false;
         state.isAuthenticated = true;
         state.isAuthChecked = true;
       })
       .addCase(registerUser.pending, (state) => {
-        state.loginUserRequest = true;
-        state.loginUserError = null;
+        state.registerUserRequest = true;
+        state.registerUserError = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
-        state.loginUserRequest = false;
-        state.loginUserError = action.error.message || null;
+        state.registerUserRequest = false;
+        state.registerUserError = action.error.message || null;
         state.isAuthChecked = true;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.data = action.payload.user;
-        state.loginUserRequest = false;
+        // action.payload теперь это TUser, а не весь объект ответа
+        state.data = action.payload;
+        state.registerUserRequest = false;
         state.isAuthenticated = true;
+        state.isAuthChecked = true;
+      })
+      .addCase(checkUserAuth.pending, (state) => {
+        state.isAuthChecked = false;
+      })
+      .addCase(checkUserAuth.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.isAuthenticated = true;
+        state.isAuthChecked = true;
+      })
+      .addCase(checkUserAuth.rejected, (state) => {
+        state.isAuthenticated = false;
+        state.isAuthChecked = true;
+        state.data = null;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.data = action.payload;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.data = null;
+        state.isAuthenticated = false;
         state.isAuthChecked = true;
       });
   }

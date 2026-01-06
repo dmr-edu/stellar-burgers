@@ -2,7 +2,7 @@ import { FC, SyntheticEvent, useState } from 'react';
 import { LoginUI } from '@ui-pages';
 import { loginUser, userSelector } from '@slices';
 import { useDispatch, useSelector } from '@store';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Preloader } from '@ui';
 
 export const Login: FC = () => {
@@ -10,13 +10,16 @@ export const Login: FC = () => {
   const [password, setPassword] = useState('');
   const { loginUserError, loginUserRequest } = useSelector(userSelector);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const dispatch = useDispatch();
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
     await dispatch(loginUser({ email, password }));
-    navigate('/');
+    // Редирект на исходный маршрут или на главную
+    const from = location.state?.from?.pathname || '/';
+    navigate(from);
   };
 
   if (loginUserRequest) {

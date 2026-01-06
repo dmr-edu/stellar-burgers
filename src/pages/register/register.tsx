@@ -2,7 +2,7 @@ import { FC, SyntheticEvent, useState } from 'react';
 import { RegisterUI } from '@ui-pages';
 import { useDispatch, useSelector } from '@store';
 import { registerUser, userSelector } from '@slices';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Preloader } from '@ui';
 
 export const Register: FC = () => {
@@ -12,6 +12,7 @@ export const Register: FC = () => {
 
   const { registerUserError, registerUserRequest } = useSelector(userSelector);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const dispatch = useDispatch();
 
@@ -24,7 +25,9 @@ export const Register: FC = () => {
         password
       })
     );
-    navigate('/');
+    // Редирект на исходный маршрут или на главную
+    const from = location.state?.from?.pathname || '/';
+    navigate(from);
   };
 
   if (registerUserRequest) {

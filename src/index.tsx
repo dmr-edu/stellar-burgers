@@ -7,7 +7,12 @@ import {
   Route,
   RouterProvider
 } from 'react-router-dom';
-import { Modal, IngredientDetails, OrderInfo } from '@components';
+import {
+  Modal,
+  IngredientDetails,
+  OrderInfo,
+  ProtectedRoute
+} from '@components';
 import {
   ConstructorPage,
   Feed,
@@ -49,19 +54,63 @@ const router = createBrowserRouter(
             }
           />
         </Route>
-        <Route path='login' element={<Login />} />
-        <Route path='register' element={<Register />} />
-        <Route path='forgot-password' element={<ForgotPassword />} />
-        <Route path='reset-password' element={<ResetPassword />} />
+        <Route
+          path='login'
+          element={
+            <ProtectedRoute onlyUnAuth>
+              <Login />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='register'
+          element={
+            <ProtectedRoute onlyUnAuth>
+              <Register />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='forgot-password'
+          element={
+            <ProtectedRoute onlyUnAuth>
+              <ForgotPassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='reset-password'
+          element={
+            <ProtectedRoute onlyUnAuth>
+              <ResetPassword />
+            </ProtectedRoute>
+          }
+        />
         <Route path='profile'>
-          <Route index element={<Profile />} />
-          <Route path='orders' element={<ProfileOrders />} />
+          <Route
+            index
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='orders'
+            element={
+              <ProtectedRoute>
+                <ProfileOrders />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path='orders/:number'
             element={
-              <Modal title='Order details' onClose={console.log}>
-                <OrderInfo />
-              </Modal>
+              <ProtectedRoute>
+                <Modal title='Order details' onClose={console.log}>
+                  <OrderInfo />
+                </Modal>
+              </ProtectedRoute>
             }
           />
         </Route>
