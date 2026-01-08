@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { TConstructorIngredient, TOrder } from '@utils-types';
+import { TConstructorIngredient, TOrder, TIngredient } from '@utils-types';
 import { orderBurgerApi } from '@api';
+import { v4 as uuidv4 } from 'uuid';
 
 type TConstructorItem = {
   bun: TConstructorIngredient | null;
@@ -31,21 +32,25 @@ export const constructorSlice = createSlice({
   name: 'constructorState',
   initialState,
   reducers: {
-    setBun: (state, action: PayloadAction<TConstructorItem['bun']>) => {
-      state.constructorItems.bun = action.payload;
+    setBun: (state, action: PayloadAction<TIngredient>) => {
+      const bunWithId: TConstructorIngredient = {
+        ...action.payload,
+        id: uuidv4()
+      };
+      state.constructorItems.bun = bunWithId;
     },
     moveUp: (state, action: PayloadAction<TConstructorIngredient>) => {
       const currentIndex = state.constructorItems.ingredients.findIndex(
-        (i) => i?._id === action.payload?._id
+        (i) => i?.id === action.payload?.id
       );
-      if (!currentIndex) return;
+      if (currentIndex <= 0) return;
       const tmp = state.constructorItems.ingredients[currentIndex - 1];
       state.constructorItems.ingredients[currentIndex - 1] = action.payload;
       state.constructorItems.ingredients[currentIndex] = tmp;
     },
     moveDown: (state, action: PayloadAction<TConstructorIngredient>) => {
       const currentIndex = state.constructorItems.ingredients.findIndex(
-        (i) => i?._id === action.payload?._id
+        (i) => i?.id === action.payload?.id
       );
       if (
         currentIndex < 0 ||
@@ -56,16 +61,20 @@ export const constructorSlice = createSlice({
       state.constructorItems.ingredients[currentIndex + 1] = action.payload;
       state.constructorItems.ingredients[currentIndex] = tmp;
     },
-    addIngredient: (state, action: PayloadAction<TConstructorIngredient>) => {
-      state.constructorItems.ingredients.push(action.payload);
+    addIngredient: (state, action: PayloadAction<TIngredient>) => {
+      const ingredientWithId: TConstructorIngredient = {
+        ...action.payload,
+        id: uuidv4()
+      };
+      state.constructorItems.ingredients.push(ingredientWithId);
     },
     removeIngredient: (
       state,
-      action: PayloadAction<TConstructorIngredient['_id']>
+      action: PayloadAction<TConstructorIngredient['id']>
     ) => {
       state.constructorItems.ingredients =
         state.constructorItems.ingredients.filter(
-          (ingredient) => ingredient._id !== action.payload
+          (ingredient) => ingredient.id !== action.payload
         );
     },
     closeOrderModal: (state) => {
