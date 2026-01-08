@@ -75,7 +75,11 @@ export const OrderInfo: FC = () => {
   }, [currentOrder, ingredients]);
 
   if (orderRequest || !ingredients.length) {
-    return <Preloader />;
+    return (
+      <p className='text text_type_main-medium' style={{ textAlign: 'center' }}>
+        Загрузка...
+      </p>
+    );
   }
 
   if (orderError || !orderInfo) {
@@ -84,5 +88,15 @@ export const OrderInfo: FC = () => {
     );
   }
 
-  return <OrderInfoUI orderInfo={orderInfo} />;
+  return (
+    <>
+      <p
+        className='text text_type_digits-default'
+        style={{ textAlign: 'center' }}
+      >
+        #{number}
+      </p>
+      <OrderInfoUI orderInfo={orderInfo} />
+    </>
+  );
 };

@@ -7,6 +7,7 @@ export * from './feed-info';
 export * from './ingredient-details';
 export * from './ingredients-category';
 export * from './modal';
+export * from './modal-order-info';
 export * from './order-card';
 export * from './order-info';
 export * from './order-status';

@@ -10,7 +10,7 @@ import {
 import {
   Modal,
   IngredientDetails,
-  OrderInfo,
+  ModalOrderInfo,
   ProtectedRoute
 } from '@components';
 import {
@@ -37,7 +37,7 @@ const router = createBrowserRouter(
           <Route
             path='ingredients/:id'
             element={
-              <Modal title='Ingredients details' onClose={goBack}>
+              <Modal title='' onClose={goBack}>
                 <IngredientDetails />
               </Modal>
             }
@@ -45,14 +45,7 @@ const router = createBrowserRouter(
         </Route>
         <Route path='feed'>
           <Route index element={<Feed />} />
-          <Route
-            path=':number'
-            element={
-              <Modal title='Feed details' onClose={console.log}>
-                <OrderInfo />
-              </Modal>
-            }
-          />
+          <Route path=':number' element={<ModalOrderInfo />} />
         </Route>
         <Route
           path='login'
@@ -107,9 +100,7 @@ const router = createBrowserRouter(
             path='orders/:number'
             element={
               <ProtectedRoute>
-                <Modal title='Order details' onClose={console.log}>
-                  <OrderInfo />
-                </Modal>
+                <ModalOrderInfo />
               </ProtectedRoute>
             }
           />

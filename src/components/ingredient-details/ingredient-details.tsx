@@ -35,5 +35,12 @@ export const IngredientDetails: FC = () => {
     return <div>Ингредиент не найден</div>;
   }
 
-  return <IngredientDetailsUI ingredientData={ingredientData} />;
+  return (
+    <>
+      <p className='text text_type_main-medium' style={{ textAlign: 'center' }}>
+        Детали ингредиента
+      </p>
+      <IngredientDetailsUI ingredientData={ingredientData} />
+    </>
+  );
 };
