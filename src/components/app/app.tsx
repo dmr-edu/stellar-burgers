@@ -3,7 +3,7 @@ import styles from './app.module.css';
 
 import { AppHeader } from '@components';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import store from '../../services/store';
 import { useDispatch } from '../../services/store';
@@ -12,6 +12,7 @@ import {
   Modal,
   IngredientDetails,
   ModalOrderInfo,
+  OrderInfo,
   ProtectedRoute
 } from '@components';
 import {
@@ -28,6 +29,8 @@ import {
 
 const AppContent = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const background = location.state?.background;
   const goBack = () => window.history.back();
 
   useEffect(() => {
@@ -38,21 +41,9 @@ const AppContent = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes>
-        <Route path='/' element={<ConstructorPage />}>
-          <Route
-            path='ingredients/:id'
-            element={
-              <Modal title='' onClose={goBack}>
-                <IngredientDetails />
-              </Modal>
-            }
-          />
-        </Route>
-        <Route path='feed'>
-          <Route index element={<Feed />} />
-          <Route path=':number' element={<ModalOrderInfo />} />
-        </Route>
+      <Routes location={background || location}>
+        <Route path='/' element={<ConstructorPage />} />
+        <Route path='feed' element={<Feed />} />
         <Route
           path='login'
           element={
@@ -102,17 +93,58 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+        </Route>
+        {!background && (
+          <>
+            <Route path='ingredients/:id' element={<IngredientDetails />} />
+            <Route
+              path='feed/:number'
+              element={
+                <ProtectedRoute>
+                  <OrderInfo />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='profile/orders/:number'
+              element={
+                <ProtectedRoute>
+                  <OrderInfo />
+                </ProtectedRoute>
+              }
+            />
+          </>
+        )}
+        <Route path='*' element={<NotFound404 />} />
+      </Routes>
+      {background && (
+        <Routes>
           <Route
-            path='orders/:number'
+            path='ingredients/:id'
+            element={
+              <Modal title='' onClose={goBack}>
+                <IngredientDetails />
+              </Modal>
+            }
+          />
+          <Route
+            path='feed/:number'
             element={
               <ProtectedRoute>
                 <ModalOrderInfo />
               </ProtectedRoute>
             }
           />
-        </Route>
-        <Route path='*' element={<NotFound404 />} />
-      </Routes>
+          <Route
+            path='profile/orders/:number'
+            element={
+              <ProtectedRoute>
+                <ModalOrderInfo />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      )}
     </div>
   );
 };
