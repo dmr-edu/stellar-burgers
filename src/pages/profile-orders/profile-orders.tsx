@@ -6,18 +6,29 @@ import { Preloader } from '@ui';
 
 export const ProfileOrders: FC = () => {
   const dispatch = useDispatch();
-  const { orders, ordersRequest } = useSelector(ordersSelector);
-  const { isAuthenticated } = useSelector(userSelector);
+  const { orders, ordersRequest, ordersError } = useSelector(ordersSelector);
+  const { isAuthenticated, isAuthChecked } = useSelector(userSelector);
 
   useEffect(() => {
-    // Загружаем заказы только если пользователь авторизован
-    if (isAuthenticated) {
+    // Загружаем заказы только после проверки авторизации и если пользователь авторизован
+    if (isAuthChecked && isAuthenticated) {
       dispatch(getOrders());
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, isAuthChecked, isAuthenticated]);
 
-  if (ordersRequest) {
+  if (!isAuthChecked || ordersRequest) {
     return <Preloader />;
+  }
+
+  if (ordersError) {
+    return (
+      <div
+        className='text text_type_main-medium'
+        style={{ textAlign: 'center', padding: '20px' }}
+      >
+        Ошибка загрузки заказов: {ordersError}
+      </div>
+    );
   }
 
   return <ProfileOrdersUI orders={orders} />;
