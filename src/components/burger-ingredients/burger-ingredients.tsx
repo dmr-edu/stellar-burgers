@@ -50,7 +50,10 @@ export const BurgerIngredients: FC = () => {
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  if (ingredientsRequest) {
+  const hasIngredients =
+    buns.length > 0 || mains.length > 0 || sauces.length > 0;
+
+  if (ingredientsRequest || !hasIngredients) {
     return <Preloader />;
   }
 

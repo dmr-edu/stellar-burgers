@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import store from '../../services/store';
 import { useDispatch } from '../../services/store';
-import { checkUserAuth } from '../../services/slices/userSlice';
+import { checkUserAuth, getIngredients } from '../../services/slices';
 import {
   Modal,
   IngredientDetails,
@@ -32,6 +32,7 @@ const AppContent = () => {
 
   useEffect(() => {
     dispatch(checkUserAuth());
+    dispatch(getIngredients());
   }, [dispatch]);
 
   return (
