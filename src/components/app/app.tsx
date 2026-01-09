@@ -94,27 +94,23 @@ const AppContent = () => {
             }
           />
         </Route>
-        {!background && (
-          <>
-            <Route path='ingredients/:id' element={<IngredientDetails />} />
-            <Route
-              path='feed/:number'
-              element={
-                <ProtectedRoute>
-                  <OrderInfo />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='profile/orders/:number'
-              element={
-                <ProtectedRoute>
-                  <OrderInfo />
-                </ProtectedRoute>
-              }
-            />
-          </>
-        )}
+        <Route path='ingredients/:id' element={<IngredientDetails />} />
+        <Route
+          path='feed/:number'
+          element={
+            <ProtectedRoute>
+              <OrderInfo />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='profile/orders/:number'
+          element={
+            <ProtectedRoute>
+              <OrderInfo />
+            </ProtectedRoute>
+          }
+        />
         <Route path='*' element={<NotFound404 />} />
       </Routes>
       {background && (
