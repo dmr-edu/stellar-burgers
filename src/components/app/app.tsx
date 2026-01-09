@@ -95,14 +95,7 @@ const AppContent = () => {
           />
         </Route>
         <Route path='ingredients/:id' element={<IngredientDetails />} />
-        <Route
-          path='feed/:number'
-          element={
-            <ProtectedRoute>
-              <OrderInfo />
-            </ProtectedRoute>
-          }
-        />
+        <Route path='feed/:number' element={<OrderInfo />} />
         <Route
           path='profile/orders/:number'
           element={
@@ -123,14 +116,7 @@ const AppContent = () => {
               </Modal>
             }
           />
-          <Route
-            path='feed/:number'
-            element={
-              <ProtectedRoute>
-                <ModalOrderInfo />
-              </ProtectedRoute>
-            }
-          />
+          <Route path='feed/:number' element={<ModalOrderInfo />} />
           <Route
             path='profile/orders/:number'
             element={
