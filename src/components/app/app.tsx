@@ -3,7 +3,13 @@ import styles from './app.module.css';
 
 import { AppHeader } from '@components';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  useNavigate
+} from 'react-router-dom';
 import { useEffect } from 'react';
 import store from '../../services/store';
 import { useDispatch } from '../../services/store';
@@ -11,7 +17,6 @@ import { checkUserAuth, getIngredients } from '../../services/slices';
 import {
   Modal,
   IngredientDetails,
-  ModalOrderInfo,
   OrderInfo,
   ProtectedRoute
 } from '@components';
@@ -30,8 +35,16 @@ import {
 const AppContent = () => {
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
   const background = location.state?.background;
-  const goBack = () => window.history.back();
+
+  const goBack = () => {
+    if (background) {
+      navigate(background.pathname || background);
+    } else {
+      window.history.back();
+    }
+  };
 
   useEffect(() => {
     dispatch(checkUserAuth());
@@ -116,12 +129,21 @@ const AppContent = () => {
               </Modal>
             }
           />
-          <Route path='feed/:number' element={<ModalOrderInfo />} />
+          <Route
+            path='feed/:number'
+            element={
+              <Modal title='' onClose={goBack}>
+                <OrderInfo />
+              </Modal>
+            }
+          />
           <Route
             path='profile/orders/:number'
             element={
               <ProtectedRoute>
-                <ModalOrderInfo />
+                <Modal title='' onClose={goBack}>
+                  <OrderInfo />
+                </Modal>
               </ProtectedRoute>
             }
           />
