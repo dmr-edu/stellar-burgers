@@ -33,11 +33,7 @@ export const constructorSlice = createSlice({
   initialState,
   reducers: {
     setBun: (state, action: PayloadAction<TIngredient>) => {
-      const bunWithId: TConstructorIngredient = {
-        ...action.payload,
-        id: uuidv4()
-      };
-      state.constructorItems.bun = bunWithId;
+      state.constructorItems.bun = action.payload as TConstructorIngredient;
     },
     moveUp: (state, action: PayloadAction<TConstructorIngredient>) => {
       const currentIndex = state.constructorItems.ingredients.findIndex(
@@ -61,12 +57,13 @@ export const constructorSlice = createSlice({
       state.constructorItems.ingredients[currentIndex + 1] = action.payload;
       state.constructorItems.ingredients[currentIndex] = tmp;
     },
-    addIngredient: (state, action: PayloadAction<TIngredient>) => {
-      const ingredientWithId: TConstructorIngredient = {
-        ...action.payload,
-        id: uuidv4()
-      };
-      state.constructorItems.ingredients.push(ingredientWithId);
+    addIngredient: {
+      reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
+        state.constructorItems.ingredients.push(action.payload);
+      },
+      prepare: (ingredient: TIngredient) => ({
+        payload: { ...ingredient, id: uuidv4() }
+      })
     },
     removeIngredient: (
       state,
