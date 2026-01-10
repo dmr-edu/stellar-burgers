@@ -23,8 +23,6 @@ export const IngredientsCategory = forwardRef<
     return counters;
   }, [constructorItems]);
 
-  console.log({ ingredients });
-
   return (
     <IngredientsCategoryUI
       title={title}

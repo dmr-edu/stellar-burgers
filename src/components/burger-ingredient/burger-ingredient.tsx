@@ -5,7 +5,7 @@ import { BurgerIngredientUI } from '@ui';
 import { TBurgerIngredientProps } from './type';
 import { useDispatch } from '@store';
 import { addIngredient, setBun } from '@slices';
-import { TConstructorIngredient } from '@utils-types';
+import { TIngredient } from '@utils-types';
 
 export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
   ({ ingredient, count }) => {
@@ -15,8 +15,8 @@ export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
     const handleAdd = () => {
       dispatch(
         ingredient.type === 'bun'
-          ? setBun(ingredient as TConstructorIngredient)
-          : addIngredient(ingredient as TConstructorIngredient)
+          ? setBun(ingredient as TIngredient)
+          : addIngredient(ingredient as TIngredient)
       );
     };
 
