@@ -4,9 +4,11 @@ import {
   addIngredient,
   removeIngredient,
   moveUp,
-  moveDown
+  moveDown,
+  clearConstructor,
+  createOrder
 } from '../constructorSlice';
-import { TIngredient } from '@utils-types';
+import { TIngredient, TOrder } from '@utils-types';
 
 const mockIngredient1: TIngredient = {
   _id: '1',
@@ -207,6 +209,102 @@ describe('constructorSlice reducers', () => {
       expect(stateAfter.constructorItems.ingredients[1]._id).toBe(
         mockIngredient2._id
       );
+    });
+  });
+
+  describe('clearConstructor', () => {
+    it('должен очищать конструктор', () => {
+      const store = configureStore({
+        reducer: {
+          constructorState: constructorSlice.reducer
+        }
+      });
+
+      store.dispatch(addIngredient(mockIngredient1));
+      store.dispatch(addIngredient(mockIngredient2));
+
+      const stateBefore = store.getState().constructorState;
+      expect(stateBefore.constructorItems.ingredients).toHaveLength(2);
+
+      store.dispatch(clearConstructor());
+
+      const stateAfter = store.getState().constructorState;
+      expect(stateAfter.constructorItems.ingredients).toHaveLength(0);
+      expect(stateAfter.constructorItems.bun).toBe(null);
+    });
+  });
+});
+
+describe('constructorSlice async actions', () => {
+  describe('createOrder', () => {
+    const mockOrder: TOrder = {
+      _id: '1',
+      status: 'done',
+      name: 'Краторный бургер',
+      createdAt: '2023-04-12T10:00:00.000Z',
+      updatedAt: '2023-04-12T10:00:00.000Z',
+      number: 12345,
+      ingredients: ['1', '2']
+    };
+
+    it('должен устанавливать orderRequest в true при pending', () => {
+      const store = configureStore({
+        reducer: {
+          constructorState: constructorSlice.reducer
+        }
+      });
+
+      const initialState = store.getState().constructorState;
+      expect(initialState.orderRequest).toBe(false);
+
+      store.dispatch({ type: createOrder.pending.type });
+
+      const state = store.getState().constructorState;
+      expect(state.orderRequest).toBe(true);
+      expect(state.orderModalData).toBe(null);
+    });
+
+    it('должен сохранять данные заказа и очищать конструктор при fulfilled', () => {
+      const store = configureStore({
+        reducer: {
+          constructorState: constructorSlice.reducer
+        }
+      });
+
+      store.dispatch(addIngredient(mockIngredient1));
+      store.dispatch(addIngredient(mockIngredient2));
+
+      const stateBefore = store.getState().constructorState;
+      expect(stateBefore.constructorItems.ingredients).toHaveLength(2);
+
+      store.dispatch({
+        type: createOrder.fulfilled.type,
+        payload: mockOrder
+      });
+
+      const state = store.getState().constructorState;
+      expect(state.orderRequest).toBe(false);
+      expect(state.orderModalData).toEqual(mockOrder);
+      expect(state.constructorItems.ingredients).toHaveLength(0);
+      expect(state.constructorItems.bun).toBe(null);
+    });
+
+    it('должен устанавливать orderRequest в false при rejected', () => {
+      const store = configureStore({
+        reducer: {
+          constructorState: constructorSlice.reducer
+        }
+      });
+
+      store.dispatch({ type: createOrder.pending.type });
+
+      const statePending = store.getState().constructorState;
+      expect(statePending.orderRequest).toBe(true);
+
+      store.dispatch({ type: createOrder.rejected.type });
+
+      const state = store.getState().constructorState;
+      expect(state.orderRequest).toBe(false);
     });
   });
 });
